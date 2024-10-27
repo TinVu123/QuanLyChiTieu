@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QuanLyChiTieu.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,19 +11,24 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace QuanLyChiTieu
+namespace QuanLyChiTieu.View
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for Signup.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class SignupView : Window
     {
-        public MainWindow()
+        public SignupView()
         {
             InitializeComponent();
+            SignupViewModel vm = new SignupViewModel();
+            this.DataContext = vm;
+            if (vm.CloseAction == null)
+            {
+                vm.CloseAction = new Action(this.Close);
+            }
         }
     }
 }
