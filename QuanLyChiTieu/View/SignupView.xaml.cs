@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QuanLyChiTieu.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,11 +18,17 @@ namespace QuanLyChiTieu.View
     /// <summary>
     /// Interaction logic for Signup.xaml
     /// </summary>
-    public partial class Signup : Window
+    public partial class SignupView : Window
     {
-        public Signup()
+        public SignupView()
         {
             InitializeComponent();
+            SignupViewModel vm = new SignupViewModel();
+            this.DataContext = vm;
+            if (vm.CloseAction == null)
+            {
+                vm.CloseAction = new Action(this.Close);
+            }
         }
     }
 }

@@ -1,0 +1,97 @@
+﻿<Window x:Class="QuanLyChiTieu.View.FilterIncomeView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:QuanLyChiTieu.View"
+        xmlns:viewmodel="clr-namespace:QuanLyChiTieu.ViewModel"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        mc:Ignorable="d"
+        Title="FilterIncomeView" Height="640" Width="950"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <Style x:Key="labelStyle">
+            <Setter Property="Label.Margin" Value="5 5 5 2"/>
+            <Setter Property="Label.FontSize" Value="18"/>
+            <Setter Property="Label.Width" Value="auto"/>
+            <Setter Property="Label.Height" Value="auto"/>
+            <Setter Property="Label.VerticalAlignment" Value="Center"/>
+            <Setter Property="Label.HorizontalAlignment" Value="Left"/>
+        </Style>
+        <Style x:Key="textBoxStyle">
+            <Setter Property="Label.Margin" Value="0 0 0 15"/>
+            <Setter Property="Label.FontSize" Value="18"/>
+            <Setter Property="Label.Height" Value="32"/>
+            <Setter Property="Label.Width" Value="auto"/>
+            <Setter Property="Label.VerticalAlignment" Value="Center"/>
+            <Setter Property="Label.HorizontalAlignment" Value="Left"/>
+        </Style>
+    </Window.Resources>
+    <Window.DataContext>
+        <viewmodel:FilterIncomeViewModel></viewmodel:FilterIncomeViewModel>
+    </Window.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="67*"/>
+            <RowDefinition Height="220*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="280"/>
+            <ColumnDefinition Width="690"/>
+        </Grid.ColumnDefinitions>
+
+        <Button Grid.Column="0" Grid.Row="0" BorderThickness="0"  Width="30" Height="30" HorizontalAlignment="Left" Margin="0,10,0,10">
+            <Button.Background>
+                <ImageBrush ImageSource="/Icons/arrow.png"/>
+            </Button.Background>
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Click">
+                    <i:CallMethodAction MethodName="Close" TargetObject="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </Button>
+        
+        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical" Grid.RowSpan="2" Margin="20,0,20,0">
+            
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 15">
+                <Label Content="Từ:" Style="{StaticResource labelStyle}" ></Label>
+                <DatePicker x:Name="startDate"  SelectedDate="{Binding StartDate, StringFormat=dd/MM/yyyy}"  Style="{StaticResource textBoxStyle}"  Width="168" Margin="13 5 0 0 "/>
+            </StackPanel>
+            
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 15">
+                <Label Content="Đến:"  Style="{StaticResource labelStyle}"></Label>
+                <DatePicker x:Name="endDate" SelectedDate="{Binding EndDate, StringFormat=dd/MM/yyyy}" Style="{StaticResource textBoxStyle}" Margin="0 5 0 0 " Width="168"/>
+            </StackPanel>
+            
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 15">
+                <Label Content="Danh mục:"  Style="{StaticResource labelStyle}"></Label>
+                <ComboBox  ItemsSource="{Binding CategorysIncome}"  FontSize="16"  Width="130" Margin="0 0 0 0 " SelectedItem="{Binding Path= SCategoryIncomeItem}"   DisplayMemberPath="TenMucThu"   Style="{StaticResource textBoxStyle}" />
+            </StackPanel>
+            
+            <Button Content="Lọc" Height="30" FontSize="20" Command="{Binding FilterCommand}" Margin="14"></Button>
+        </StackPanel>
+
+
+
+        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+            <Label Content="Thu:" FontWeight="bold" Style="{StaticResource labelStyle}" FontSize="24"/>
+            <TextBlock Text="{Binding TotalMoney}" Style="{StaticResource labelStyle}" FontSize="23"/>
+        </StackPanel>
+
+        <ListView Grid.Row="1" Grid.Column="1" ItemsSource="{Binding IncomeList}" FontSize="20" Margin="5,5,5,5" Grid.RowSpan="2" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="STT" Width="40" DisplayMemberBinding="{Binding STT}"/>
+                    <GridViewColumn Header="Danh mục" Width="140" DisplayMemberBinding="{Binding Danhmuc}"/>
+                    <GridViewColumn Header="Số tiền" Width="140" DisplayMemberBinding="{Binding Sotien, StringFormat={}{0:#,##}}"/>
+                    <GridViewColumn Header="Thời gian" Width="140" DisplayMemberBinding="{Binding Thoigian, StringFormat=dd-MM-yyyy}"/>
+                    <GridViewColumn Header="Ghi chú" Width="150" DisplayMemberBinding="{Binding Chitiet}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+    </Grid>
+</Window>

@@ -1,13 +1,20 @@
-﻿<Window x:Class="QuanLyChiTieu.View.Signup"
+﻿<Window x:Class="QuanLyChiTieu.View.LoginView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:QuanLyChiTieu.View"
+        xmlns:viewmodel="clr-namespace:QuanLyChiTieu.ViewModel"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        Name="loginview"
         mc:Ignorable="d"
-           Title="Login" Height="640" Width="950"
-    WindowStartupLocation="CenterScreen">
-
+        Title="LoginView" Height="640" Width="950"
+        WindowStartupLocation="CenterScreen">
+    
+    <Window.DataContext>
+        <viewmodel:LoginViewModel/>
+    </Window.DataContext>
+    
     <Window.Resources>
         <Style x:Key="labelStyle">
             <Setter Property="Label.Margin" Value="5 0 0 0"/>
@@ -15,6 +22,13 @@
             <Setter Property="Label.Height" Value="auto"/>
             <Setter Property="Label.VerticalAlignment" Value="Center"/>
             <Setter Property="Label.HorizontalAlignment" Value="Center"/>
+        </Style>
+        <Style  x:Key="textboxStyle">
+            <Setter Property="TextBox.Background" Value="Transparent"/>
+            <Setter Property="TextBox.FontSize" Value="20"/>
+            <Setter Property="TextBox.BorderThickness" Value="0"/>
+            <Setter Property="TextBox.Width" Value="300"/>
+            <Setter Property="TextBox.VerticalAlignment" Value="Center"/>
         </Style>
     </Window.Resources>
 
@@ -27,7 +41,6 @@
             <Grid.Effect>
                 <DropShadowEffect BlurRadius="30" ShadowDepth="1" Opacity="0.5"/>
             </Grid.Effect>
-            
             <Border Grid.Column="0" Background="#FF30B7F0" CornerRadius="0 20 40 0" >
                 <StackPanel Orientation="Vertical"  HorizontalAlignment="Center" Margin="0 150 0 100">
                     <Label Content="Welcome" FontSize="36" Style="{StaticResource labelStyle}"  Foreground="White"  FontWeight="Bold" FontStyle="Italic"/>
@@ -35,38 +48,33 @@
                     <Label Content="Nhóm 4" FontSize="24" Style="{StaticResource labelStyle}"  Foreground="White"  FontWeight="Bold" FontStyle="Italic"/>
                 </StackPanel>
             </Border>
-            
         </Grid>
         <Grid Grid.Column="1">
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Label Content="Signup" Foreground="#FF30B7F0" HorizontalAlignment="Center" FontSize="46" FontWeight="Bold" Margin="0 0 0 28"/>
-                
-                <Label Content="UserName:" FontWeight="Medium" FontSize="20" />
-                <Border Background="White"  BorderBrush="Black" BorderThickness="1" Width="320" CornerRadius="5" Height="40" Margin="6" Opacity="0.7">
-                    <TextBox Background="Transparent" FontSize="23" BorderThickness="0" Width="300"  VerticalAlignment="Center"/>
-                </Border>
-               
+                <Label Content="Login" Foreground="#FF30B7F0" HorizontalAlignment="Center" FontSize="46" FontWeight="Bold" Margin="0 0 0 28"/>
+
                 <Label Content="Email:" FontWeight="Medium" FontSize="20" />
                 <Border Background="White"  BorderBrush="Black" BorderThickness="1" Width="320" CornerRadius="5" Height="40" Margin="6" Opacity="0.7">
-                    <TextBox Background="Transparent" FontSize="23" BorderThickness="0" Width="300"  VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding Email}" Style="{StaticResource textboxStyle}"/>
                 </Border>
-                
+               
                 <Label Content="Password:"  FontWeight="Medium" FontSize="20" />
                 <Border Background="White"  BorderBrush="Black" BorderThickness="1" Width="320" CornerRadius="5" Height="40" Margin="6" Opacity="0.7">
-                    <TextBox Background="Transparent" FontSize="23" BorderThickness="0" Width="300"  VerticalAlignment="Center"/>
-                </Border>
-
-                <Label Content="Confirm Password:"  FontWeight="Medium" FontSize="20" />
-                <Border Background="White"  BorderBrush="Black" BorderThickness="1" Width="320" CornerRadius="5" Height="40" Margin="6" Opacity="0.7">
-                    <TextBox Background="Transparent" FontSize="23" BorderThickness="0" Width="300"  VerticalAlignment="Center"/>
+                    <PasswordBox x:Name="PasswordBox"  Style="{StaticResource textboxStyle}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="PasswordChanged">
+                                <i:InvokeCommandAction Command="{Binding PasswordCommand}" CommandParameter="{Binding ElementName= PasswordBox}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </PasswordBox>
                 </Border>
 
                 <StackPanel Orientation="Horizontal" Margin="0 20 0 0" HorizontalAlignment="Center">
                     <Border CornerRadius="10" Background="#FF30B7F0" Margin="0 0 60 0">
-                        <Button Content="Signup" FontWeight="Medium" Background="Transparent" BorderThickness="0" Width="120" Foreground="white" Height="45"  FontSize="23"></Button>
+                        <Button Content="Login" Command="{Binding LoginCommand}"  CommandParameter="{Binding ElementName=loginview}" FontWeight="Medium" Background="Transparent" BorderThickness="0" Width="120" Foreground="white" Height="45"  FontSize="23"></Button>
                     </Border>
                     <Border CornerRadius="10" Background="#FF30B7F0" >
-                        <Button Content="Cancel" FontWeight="Medium" Background="Transparent" Foreground="White" ForceCursor="False"  BorderThickness="0" Width="120" Height="45" FontSize="23"></Button>
+                        <Button Content="Signup" Command="{Binding SignupCommand}" FontWeight="Medium" Background="Transparent" Foreground="White" ForceCursor="False"  BorderThickness="0" Width="120" Height="45" FontSize="23"></Button>
                     </Border>
                 </StackPanel>
             </StackPanel>

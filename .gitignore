@@ -361,3 +361,16 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/QuanLyChiTieu/Model/ChiTieu.cs
+/QuanLyChiTieu/Model/DanhMucChi.cs
+/QuanLyChiTieu/Model/DanhMucThu.cs
+/QuanLyChiTieu/Model/Model1.Context.cs
+/QuanLyChiTieu/Model/Model1.Context.tt
+/QuanLyChiTieu/Model/Model1.cs
+/QuanLyChiTieu/Model/Model1.Designer.cs
+/QuanLyChiTieu/Model/Model1.edmx
+/QuanLyChiTieu/Model/Model1.edmx.diagram
+/QuanLyChiTieu/Model/Model1.tt
+/QuanLyChiTieu/Model/ThuNhap.cs
+/QuanLyChiTieu/Model/User.cs
+/QuanLyChiTieu/App.config
