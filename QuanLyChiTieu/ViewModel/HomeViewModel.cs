@@ -63,15 +63,11 @@ namespace QuanLyChiTieu.ViewModel
                 loginView.ShowDialog();
                 var loginVM = loginView.DataContext as LoginViewModel;
 
-                View.SignupView signupView = new View.SignupView();
-                signupView.ShowDialog();
-                var signupVM = signupView.DataContext as SignupViewModel;
-
                 if (loginView.DataContext == null)
                 {
                     return;
                 }
-                if (loginVM.IsLogin || signupVM.IsSignup)
+                if (loginVM.IsLogin )
                 {
                     p.Show();
                     MonthPicker = DateTime.Today;
