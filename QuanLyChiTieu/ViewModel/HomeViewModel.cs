@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows;
 using LiveCharts;
+using System.Data.SqlClient;
 
 namespace QuanLyChiTieu.ViewModel
 {
@@ -45,14 +46,25 @@ namespace QuanLyChiTieu.ViewModel
 
         public Func<double, string> Formatter { get; set; }
 
+        public int checkYear = 0;
+
         private DateTime _monthPicker;
+        public DateTime MonthPicker { get => _monthPicker; 
+            set { 
+                _monthPicker = value; 
+                OnPropertyChanged();
+                LoadSpendingAndIncomeAndIncome();
+                if (MonthPicker.Year != checkYear)
+                {
+                    LiveChart();
+                    checkYear = MonthPicker.Year;
+                }
+            } }
 
-        public DateTime MonthPicker { get => _monthPicker; set { _monthPicker = value; OnPropertyChanged(); LoadSpendingAndIncomeAndIncome(); } }
 
-
-        public HomeViewModel()
+        public  HomeViewModel()
         {
-            LoadedCommand = new RelayCommand<Window>((p) => { return true; }, p =>
+            LoadedCommand = new RelayCommand<Window>((p) => { return true; }, async p =>
             {
                 if (p == null)
                 {
@@ -71,7 +83,7 @@ namespace QuanLyChiTieu.ViewModel
                 {
                     p.Show();
                     MonthPicker = DateTime.Today;
-                    LoadSpendingAndIncomeAndIncome();
+                  await  LoadSpendingAndIncomeAndIncome();
                 }
                 else
                 {
@@ -100,7 +112,7 @@ namespace QuanLyChiTieu.ViewModel
                 new ColumnSeries
                 {
                     Title = "Thu",
-                    Values = new ChartValues<double>(GetDataLiveChartIncome()),
+                    Values = new ChartValues<decimal>(GetDataLiveChartIncome()),
                 },
                 new ColumnSeries
                 {
@@ -113,39 +125,46 @@ namespace QuanLyChiTieu.ViewModel
         }
 
         // Tinh tong so tien thu va chi
-        public void LoadSpendingAndIncomeAndIncome()
+        public async Task LoadSpendingAndIncomeAndIncome()
         {
-            using (var db = new QuanLyChiTieuEntities())
+            try
             {
-                var tongChi = from k in db.ChiTieux
-                              where k.ThoiGian.Value.Month == MonthPicker.Month &&
-                                     k.ThoiGian.Value.Year == MonthPicker.Year &&
-                                     k.UserID == UserService.Instance.UserID
-                              group k by k.ThoiGian into g
-                              select g.Sum(p => p.SoTien);
-
-                var tongThu = from k in db.ThuNhaps
-                              where k.ThoiGian.Value.Month == MonthPicker.Month &&
-                                     k.ThoiGian.Value.Year == MonthPicker.Year &&
-                                   UserService.Instance.UserID == k.UserID
-                              group k by k.ThoiGian into g
-                              select g.Sum(p => p.SoTien);
-
-                if (tongThu != null && tongChi != null)
+                using (var db = new QuanLyChiTieuEntities())
                 {
-                    TotalIncome = string.Format("{0:#,###}", tongThu.Sum());
-                    TotalSpending = string.Format("{0:#,###}", tongChi.Sum());
+                    try
+                    {
+                        var tongChi = await db.Database.SqlQuery<decimal?>(
+                            "exec [dbo].[TinhTongTienChi] @month, @year, @userid",
+                            new SqlParameter("@month", MonthPicker.Month),
+                            new SqlParameter("@year", MonthPicker.Year),
+                            new SqlParameter("@userid", UserService.Instance.UserID)
+                        ).SingleOrDefaultAsync();
+                        TotalSpending = tongChi.HasValue ? string.Format("{0:#,###} VND", tongChi.Value) : "0 VND";
+                    }
+                    catch (Exception ex) { Console.WriteLine(ex.ToString()); }
 
+                    try
+                    {
+                        var tongThu = await db.Database.SqlQuery<decimal?>(
+                        "exec [dbo].[TinhTongTienThu] @month, @year, @userid",
+                        new SqlParameter("@month", MonthPicker.Month),
+                        new SqlParameter("@year", MonthPicker.Year),
+                        new SqlParameter("@userid", UserService.Instance.UserID)
+                        ).SingleOrDefaultAsync();
+                        TotalIncome = tongThu.HasValue ? string.Format("{0:#,###} VND", tongThu.Value) : "0 VND";
+                    }
+                    catch (Exception ex) { Console.WriteLine(ex.Message); }
                 }
-
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.ToString());
             }
-            LiveChart();
         }
 
         // Lấy dữ liệu cho biểu đồ thu
-        public double[] GetDataLiveChartIncome()
+        public decimal[] GetDataLiveChartIncome()
         {
-            Dictionary<int, double> monthDiction = new Dictionary<int, double>
+            Dictionary<int, decimal> monthDiction = new Dictionary<int, decimal>
             {
                 [1] = 0,
                 [2] = 0,

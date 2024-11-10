@@ -3,6 +3,7 @@ using QuanLyChiTieu.View;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -62,13 +63,37 @@ namespace QuanLyChiTieu.ViewModel
 
             using (var db = new QuanLyChiTieuEntities())
             {
-                var data = from k in db.ChiTieux
+                /*var data = from k in db.ChiTieux
                            where UserService.Instance.UserID == k.UserID &&
                                  k.ThoiGian.Value.Month == MonthPicker.Month &&
                                  k.ThoiGian.Value.Year == MonthPicker.Year
-                           select k;
+                           select k;*/
 
-                int i = 0, sum = 0;
+                try
+                {
+                    var data = db.Database.SqlQuery<Chitieuhienthi>(
+                        "exec [dbo].[LayChiTieu]  @year, @month, @userid",
+                        new SqlParameter("@userid", UserService.Instance.UserID),
+                        new SqlParameter("@month", MonthPicker.Month),
+                        new SqlParameter("@year", MonthPicker.Year)
+                    ).ToList();
+                    int i = 0;
+                    foreach (var k in data)
+                    {
+                        DisplayListView ct = new DisplayListView
+                        {
+                            STT = ++i,
+                            Danhmuc = k.Danhmuc,
+                            Thoigian = k.Thoigian,
+                            Sotien = k.Sotien,
+                            Chitiet = k.Chitiet
+                        };
+                        SpendingList.Add(ct);
+                    }
+                }
+                catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+
+                /*int i = 0, sum = 0;
                 foreach (var k in data.ToList())
                 {
                     DisplayListView ct = new DisplayListView
@@ -82,7 +107,7 @@ namespace QuanLyChiTieu.ViewModel
                     sum += (int)k.SoTien;
                     SpendingList.Add(ct);
                 }
-                TotalMoney = string.Format("{0:#,###}", sum);
+                TotalMoney = string.Format("{0:#,###}", sum);*/
             }
             DanhMuc();
         }

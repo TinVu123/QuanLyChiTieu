@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -61,27 +62,62 @@ namespace QuanLyChiTieu.ViewModel
 
             using (var db = new QuanLyChiTieuEntities())
             {
-                var data = from k in db.ThuNhaps
-                           where UserService.Instance.UserID == k.UserID &&
-                                 k.ThoiGian.Value.Month == MonthPicker.Month &&
-                                 k.ThoiGian.Value.Year == MonthPicker.Year
-                           select k;
-
-                int i = 0, sum = 0;
-                foreach (var k in data.ToList())
+                /* var data = from k in db.ThuNhaps
+                            where UserService.Instance.UserID == k.UserID &&
+                                  k.ThoiGian.Value.Month == MonthPicker.Month &&
+                                  k.ThoiGian.Value.Year == MonthPicker.Year
+                            select k;*/
+                try
                 {
-                    DisplayListView ct = new DisplayListView
+                    var data = db.Database.SqlQuery<ThuNhap>(
+                        "exec [dbo].[LayThuNhap] @year, @month, @userid",
+                        new SqlParameter("@userid", UserService.Instance.UserID),
+                        new SqlParameter("@month", MonthPicker.Month),
+                        new SqlParameter("@year", MonthPicker.Year)
+                    ).ToList();
+
+                    int i = 0;
+                    foreach (var k in data)
                     {
-                        STT = ++i,
-                        Danhmuc = k.DanhMuc,
-                        Thoigian = k.ThoiGian.Value,
-                        Sotien = (int)k.SoTien,
-                        Chitiet = k.ChiTiet
-                    };
-                    sum += (int)k.SoTien;
-                    IncomeList.Add(ct);
+                        DisplayListView ct = new DisplayListView
+                        {
+                            STT = ++i,
+                            Danhmuc = k.DanhMuc,
+                            Thoigian = (DateTime)k.ThoiGian,
+                            Sotien = (int)k.SoTien,
+                            Chitiet = k.ChiTiet
+                        };
+
+                        // Kiểm tra nếu IncomeList đã được khởi tạo
+                        if (IncomeList == null)
+                        {
+                            IncomeList = new ObservableCollection<DisplayListView>();
+                        }
+
+                        IncomeList.Add(ct);  // Thêm vào danh sách
+                    }
                 }
-                TotalMoney = string.Format("{0:#,###}", sum);
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error: " + ex.ToString());
+                }
+
+
+                /* int i = 0, sum = 0;
+                 foreach (var k in data.ToList())
+                 {
+                     DisplayListView ct = new DisplayListView
+                     {
+                         STT = ++i,
+                         Danhmuc = k.DanhMuc,
+                         Thoigian = k.ThoiGian.Value,
+                         Sotien = (int)k.SoTien,
+                         Chitiet = k.ChiTiet
+                     };
+                     sum += (int)k.SoTien;
+                     IncomeList.Add(ct);
+                 }
+                 TotalMoney = string.Format("{0:#,###}", sum);*/
             }
         }
         public ObservableCollection<DanhMucThu> _categoriesIncome = new ObservableCollection<DanhMucThu>(); 
