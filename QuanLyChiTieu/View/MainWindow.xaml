@@ -1,16 +1,29 @@
 ﻿<Window x:Class="QuanLyChiTieu.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Quản Lý Chi Tiêu" Height="400" Width="600">
+        xmlns:local="clr-namespace:QuanLyChiTieu"
+        Title="Quản Lý Chi Tiêu" Height="450" Width="650">
+
+    <Window.DataContext>
+        <!-- Liên kết với ViewModel -->
+        <local:MainViewModel />
+    </Window.DataContext>
 
     <Grid Margin="10">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
+        <!-- Phần tìm kiếm -->
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBox Name="txtSearch" Width="300" PlaceholderText="Tìm kiếm khoản chi tiêu..." Margin="5" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+            <Button Content="Tìm" Width="80" Margin="5" Command="{Binding SearchCommand}" />
+        </StackPanel>
+
         <!-- Danh sách các khoản chi tiêu -->
-        <ListView Name="ExpenseList" Grid.Row="0" Margin="0,0,0,10" Height="200">
+        <ListView Name="ExpenseList" Grid.Row="1" Margin="0,0,0,10" ItemsSource="{Binding FilteredExpenses}">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Tên" DisplayMemberBinding="{Binding Name}" Width="150"/>
@@ -21,32 +34,32 @@
             </ListView.View>
         </ListView>
 
-        <!-- Phần thêm khoản chi tiêu mới -->
-        <StackPanel Grid.Row="1" Orientation="Vertical">
+        <!-- Phần thêm khoản chi tiêu -->
+        <StackPanel Grid.Row="2" Orientation="Vertical">
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <TextBlock Text="Tên:" Width="80" VerticalAlignment="Center"/>
-                <TextBox Name="txtName" Width="200" Margin="5"/>
+                <TextBox Name="txtName" Width="200" Margin="5" Text="{Binding NewExpense.Name}" />
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <TextBlock Text="Số tiền:" Width="80" VerticalAlignment="Center"/>
-                <TextBox Name="txtAmount" Width="200" Margin="5"/>
+                <TextBox Name="txtAmount" Width="200" Margin="5" Text="{Binding NewExpense.Amount}" />
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <TextBlock Text="Loại:" Width="80" VerticalAlignment="Center"/>
-                <ComboBox Name="cbType" Width="200" Margin="5">
+                <ComboBox Name="cbType" Width="200" Margin="5" SelectedItem="{Binding NewExpense.Type}">
                     <ComboBoxItem Content="Thu"/>
                     <ComboBoxItem Content="Chi"/>
                 </ComboBox>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <TextBlock Text="Mô tả:" Width="80" VerticalAlignment="Center"/>
-                <TextBox Name="txtDescription" Width="200" Margin="5"/>
+                <TextBox Name="txtDescription" Width="200" Margin="5" Text="{Binding NewExpense.Description}" />
             </StackPanel>
 
             <!-- Nút thêm và xóa -->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Name="btnAdd" Content="Thêm" Width="80" Margin="5" Click="btnAdd_Click"/>
-                <Button Name="btnRemove" Content="Xóa" Width="80" Margin="5" Click="btnRemove_Click"/>
+                <Button Content="Thêm" Width="80" Margin="5" Command="{Binding AddExpenseCommand}" />
+                <Button Content="Xóa" Width="80" Margin="5" Command="{Binding RemoveExpenseCommand}" />
             </StackPanel>
         </StackPanel>
     </Grid>

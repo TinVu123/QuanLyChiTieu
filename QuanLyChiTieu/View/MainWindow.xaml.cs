@@ -1,61 +1,119 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
-using System.Xml.Linq;
+using System.Windows.Input;
+using QuanLyChiTieu.ViewModel;
 
-public partial class MainWindow : Window
+namespace QuanLyChiTieu
 {
-    public ObservableCollection<Expense> Expenses { get; set; }
-
-    public MainWindow()
+    public class MainViewModel : BaseViewModel
     {
-        InitializeComponent();
-        Expenses = new ObservableCollection<Expense>();
-        ExpenseList.ItemsSource = Expenses;
+        // ObservableCollection cho danh sách các khoản chi tiêu
+        public ObservableCollection<Expense> Expenses { get; set; }
+        public ObservableCollection<Expense> FilteredExpenses { get; set; } // Dùng cho tìm kiếm
+
+        private string _searchText;
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                if (_searchText != value)
+                {
+                    _searchText = value;
+                    OnPropertyChanged();
+                    SearchCommand.Execute(null); // Tự động tìm kiếm khi thay đổi văn bản
+                }
+            }
+        }
+
+        public Expense NewExpense { get; set; } = new Expense();
+
+        public ICommand SearchCommand { get; }
+        public ICommand AddExpenseCommand { get; }
+        public ICommand RemoveExpenseCommand { get; }
+
+        public MainViewModel()
+        {
+            Expenses = new ObservableCollection<Expense>();
+            FilteredExpenses = new ObservableCollection<Expense>(Expenses);
+
+            // Lệnh tìm kiếm
+            SearchCommand = new RelayCommand<object>(_ => SearchExpenses(), _ => !string.IsNullOrWhiteSpace(SearchText));
+
+            // Lệnh thêm khoản chi tiêu
+            AddExpenseCommand = new RelayCommand<object>(_ => AddExpense(), _ => CanAddExpense());
+
+            // Lệnh xóa khoản chi tiêu
+            RemoveExpenseCommand = new RelayCommand<object>(_ => RemoveExpense(), _ => CanRemoveExpense());
+        }
+
+        private void SearchExpenses()
+        {
+            var keyword = SearchText.ToLower();
+            FilteredExpenses.Clear();
+            foreach (var expense in Expenses.Where(e => e.Name.ToLower().Contains(keyword) || e.Type.ToLower().Contains(keyword)))
+            {
+                FilteredExpenses.Add(expense);
+            }
+        }
+
+        private void AddExpense()
+        {
+            // Kiểm tra rỗng
+            if (string.IsNullOrWhiteSpace(NewExpense.Name) || string.IsNullOrWhiteSpace(NewExpense.Amount.ToString()) || string.IsNullOrWhiteSpace(NewExpense.Type))
+            {
+                MessageBox.Show("Vui lòng điền đầy đủ thông tin.");
+                return;
+            }
+
+            // Kiểm tra số tiền hợp lệ
+            if (NewExpense.Amount <= 0)
+            {
+                MessageBox.Show("Vui lòng nhập số tiền hợp lệ (lớn hơn 0).");
+                return;
+            }
+
+            Expenses.Add(NewExpense);
+            UpdateFilteredExpenses();
+            ClearNewExpenseForm();
+        }
+
+        private bool CanAddExpense() => !string.IsNullOrWhiteSpace(NewExpense.Name) && NewExpense.Amount > 0;
+
+        private void RemoveExpense()
+        {
+            if (FilteredExpenses.Count > 0)
+            {
+                var expenseToRemove = FilteredExpenses.First();
+                Expenses.Remove(expenseToRemove);
+                UpdateFilteredExpenses();
+            }
+        }
+
+        private bool CanRemoveExpense() => FilteredExpenses.Any();
+
+        private void UpdateFilteredExpenses()
+        {
+            FilteredExpenses.Clear();
+            foreach (var expense in Expenses)
+            {
+                FilteredExpenses.Add(expense);
+            }
+        }
+
+        private void ClearNewExpenseForm()
+        {
+            NewExpense = new Expense(); // Reset form
+            OnPropertyChanged(nameof(NewExpense));
+        }
     }
-}
 
-public class Expense
-{
-    public string Name { get; set; }
-    public decimal Amount { get; set; }
-    public string Type { get; set; }
-    public string Description { get; set; }
-}
-
-
-private void btnAdd_Click(object sender, RoutedEventArgs e)
-{
-    // Lấy dữ liệu từ các ô nhập liệu
-    string name = txtName.Text;
-    decimal amount;
-    if (!decimal.TryParse(txtAmount.Text, out amount))
+    public class Expense
     {
-        MessageBox.Show("Vui lòng nhập số tiền hợp lệ.");
-        return;
-    }
-    string type = ((ComboBoxItem)cbType.SelectedItem).Content.ToString();
-    string description = txtDescription.Text;
-
-    // Tạo đối tượng Expense mới và thêm vào danh sách
-    Expenses.Add(new Expense { Name = name, Amount = amount, Type = type, Description = description });
-
-    // Xóa dữ liệu trong các ô nhập liệu sau khi thêm
-    txtName.Clear();
-    txtAmount.Clear();
-    txtDescription.Clear();
-    cbType.SelectedIndex = -1;
-}
-
-
-private void btnRemove_Click(object sender, RoutedEventArgs e)
-{
-    if (ExpenseList.SelectedItem != null)
-    {
-        Expenses.Remove((Expense)ExpenseList.SelectedItem);
-    }
-    else
-    {
-        MessageBox.Show("Vui lòng chọn khoản chi tiêu cần xóa.");
+        public string Name { get; set; }
+        public decimal Amount { get; set; }
+        public string Type { get; set; }
+        public string Description { get; set; }
     }
 }
