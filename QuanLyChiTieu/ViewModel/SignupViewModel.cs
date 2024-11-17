@@ -67,32 +67,37 @@ namespace QuanLyChiTieu.ViewModel
                 MessageBox.Show("Nhập lại ConfirmPassword.");
                 return;
             }
-
-            using (var db = new QuanLyChiTieuEntities())
+            try
             {
-                var count = (from k in db.Users
-                             where k.EmailorPhone == EmailorSDT
-                             select k
-                       ).Count();
+                using (var db = new QuanLyChiTieuEntities())
+                {
+                    var count = (from k in db.Users
+                                 where k.EmailorPhone == EmailorSDT
+                                 select k
+                           ).Count();
+                    if (count == 0)
+                    {
+                        User a = new User();
+                        a.Username = UserName;
+                        a.EmailorPhone = EmailorSDT;
+                        a.Password = Password;
+                        db.Users.Add(a);
+                        db.SaveChanges();
+                        IsSignup = true;
+                        CloseAction();
 
-                if (count == 0)
-                {
-                    User a = new User();
-                    a.Username = UserName;
-                    a.EmailorPhone = EmailorSDT;
-                    a.Password = Password;
-                    db.Users.Add(a);
-                    db.SaveChanges();
-                    IsSignup = true;
-                    CloseAction();
-                   
-                    MessageBox.Show("Đăng ký thành công!");
+                        MessageBox.Show("Đăng ký thành công!");
+                    }
+                    else
+                    {
+                        MessageBox.Show("EmailorSDT đã tồn tại");
+                    }
                 }
-                else
-                {
-                    MessageBox.Show("EmailorSDT đã tồn tại");
-                }
+            }catch(Exception ex) { MessageBox.Show(ex.ToString()); }
+            
+
+                
             }
         }
     }
-}
+

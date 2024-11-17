@@ -45,6 +45,8 @@ namespace QuanLyChiTieu.ViewModel
         // Constructor
         public FilterSpendingViewModel()
         {
+            StartDate = DateTime.Now;
+            EndDate = DateTime.Now;
             Category();
             FilterCommand = new RelayCommand<Window>((p) => { return true; }, (p) => { LoadFilter(); });
         }
@@ -59,50 +61,60 @@ namespace QuanLyChiTieu.ViewModel
                 if (SCategorySpending != null)
                 {
                     var data = from k in db.ChiTieux
-                               where UserService.Instance.UserID == k.UserID &&
-                                     k.ThoiGian >= StartDate && k.ThoiGian <= EndDate &&
-                                     k.DanhMuc == SCategorySpending.TenMucChi
+                               where UserService.Instance.UserID == k.UserID
+                                     && k.ThoiGian >= StartDate
+                                     && k.ThoiGian <= EndDate
+                                     && k.DanhMuc == SCategorySpending.TenMucChi
                                select k;
-                    int i = 0, sum = 0;
 
+                    int i = 0, sum = 0;
                     foreach (var k in data.ToList())
                     {
-                        DisplayListView ct = new DisplayListView
+                        // Tạo một đối tượng DisplayListView và thêm vào danh sách
+                        var ct = new DisplayListView
                         {
                             STT = ++i,
                             Danhmuc = k.DanhMuc,
                             Thoigian = k.ThoiGian.Value,
-                            Sotien = (int)k.SoTien,
+                            Sotien = k.SoTien,
                             Chitiet = k.ChiTiet
                         };
-                        sum += (int)k.SoTien;
+
+                        sum += (int)k.SoTien; // Cộng dồn số tiền
                         SpendingList.Add(ct);
                     }
-                    TotalMoney = sum.ToString();
+
+                    TotalMoney = string.Format("{0:#,###} VND", sum);
                 }
                 else
                 {
                     var data = from k in db.ChiTieux
-                               where UserService.Instance.UserID == k.UserID &&
-                                     k.ThoiGian >= StartDate && k.ThoiGian <= EndDate
+                               where UserService.Instance.UserID == k.UserID
+                                     && k.ThoiGian >= StartDate
+                                     && k.ThoiGian <= EndDate
                                select k;
-                    int i = 0, sum = 0;
 
+                    int i = 0, sum = 0;
                     foreach (var k in data.ToList())
                     {
-                        DisplayListView ct = new DisplayListView
+                        // Tạo một đối tượng DisplayListView và thêm vào danh sách
+                        var ct = new DisplayListView
                         {
                             STT = ++i,
                             Danhmuc = k.DanhMuc,
                             Thoigian = k.ThoiGian.Value,
-                            Sotien = (int)k.SoTien,
+                            Sotien = k.SoTien,
                             Chitiet = k.ChiTiet
                         };
-                        sum += (int)k.SoTien;
+
+                        sum += (int)k.SoTien; // Cộng dồn số tiền
                         SpendingList.Add(ct);
                     }
-                    TotalMoney = string.Format("{0:#,###}", sum);
+
+                    // Hiển thị tổng tiền dưới định dạng VND
+                    TotalMoney = string.Format("{0:#,###} VND", sum);
                 }
+
             }
         }
 

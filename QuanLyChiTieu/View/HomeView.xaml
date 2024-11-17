@@ -9,7 +9,7 @@
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d"
         x:Name="HomeWindow"
-        Title="HomeView" Height="640" Width="950" WindowStartupLocation="CenterScreen">
+        Title="HomeView" Height="640" Width="950" WindowStartupLocation="CenterScreen" >
 
     <Window.DataContext>
         <viewmodel:HomeViewModel/>
@@ -21,8 +21,27 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
 
+    <Window.Resources>
+        <Style x:Key="RoundedButton" TargetType="Button">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Width" Value="110"/>
+            <Setter Property="Background" Value="#FFF3F7AC"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="10">
+                            <!-- Thiết lập bo góc tại đây -->
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
 
-    <Grid Height="630" VerticalAlignment="Top">
+
+    <Grid  VerticalAlignment="Top">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="47*"/>
             <ColumnDefinition Width="47*"/>
@@ -37,7 +56,6 @@
                     viewmodel:DatePickerCalendar.IsMonthYear="True"
                     viewmodel:DatePickerDateFormat.DateFormat="MMMM-yyyy"
                     Text="MMM-yyyy" Margin="0,20,0,35"/>
-
         <Rectangle Height="auto" Grid.Column="1" Fill="#87CEFA" Margin="10,0,10,5" RadiusX="15.0" RadiusY="15.0" Grid.Row="1">
             <Rectangle.Effect>
                 <DropShadowEffect Color="#FFA8A8A8" BlurRadius="10" ShadowDepth="2" Direction="-45" Opacity="0.5" />
@@ -54,28 +72,52 @@
         
         <TextBlock Foreground="Black"  Text="{Binding TotalSpending}" HorizontalAlignment="Left" Height="42" FontWeight="Bold" Margin="89,12,0,0" TextWrapping="NoWrap"  FontSize="30" VerticalAlignment="Top" Width="auto" Padding="4,0,0,0" Grid.Row="1" ></TextBlock>
         <TextBlock Foreground="Black" Text="{Binding TotalIncome}" HorizontalAlignment="Left" Height="42" FontWeight="Bold" Margin="99,12,0,0" TextWrapping="NoWrap"  VerticalAlignment="Top" Width="auto" Grid.Column="1" Padding="4,0,0,0" Grid.Row="1" FontSize="30" />
+
+        <Button Style="{StaticResource RoundedButton}" HorizontalAlignment="Left" Content="Chi tiết" Command="{Binding DetailSpendingCommand}" Grid.Row="1" VerticalAlignment="Top" Margin="26,69,0,0"/>
+        <Button Style="{StaticResource RoundedButton}" Grid.Row="1" Content="Chi tiết" Command="{Binding DetailIcomeCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Margin="26,69,0,0"/>
+        <Button Style="{StaticResource RoundedButton}" Content="Reload" Width="50" FontSize="14" Command="{Binding ReloadCommand}" Grid.Column="1" Grid.Row="0"  Height="30" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10"/>
         
-        <Button HorizontalAlignment="Left" Content="Chi tiết" Command="{Binding DetailSpendingCommand}" FontSize="20" Height="42" Background="#FFF3F7AC"  Grid.Row="1" VerticalAlignment="Top" Width="110" Margin="26,69,0,0"/>
-        <Button Grid.Row="1"   Content="Chi tiết" FontSize="20" Command="{Binding DetailIcomeCommand}" Height="42" HorizontalAlignment="Left"  Background="#FFF3F7AC"   VerticalAlignment="Top" Width="110" Grid.Column="1" Margin="26,69,0,0" />
+        <GroupBox Grid.Row="2" Grid.ColumnSpan="2"  FontSize="16" FontWeight="Medium" 
+          Header="Thống kê số tiền thu chi theo năm"  Height="350" Margin="10,10,10,0" Grid.Column="0">
+            <GroupBox.Template>
+                <ControlTemplate TargetType="GroupBox">
+                    <Grid>
+                        <!-- Border with rounded corners -->
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
+                        BorderThickness="1" CornerRadius="10" >
+                            <!-- Header content and inner content -->
+                            <StackPanel>
+                                <!-- Header -->
+                                <TextBlock Text="{TemplateBinding Header}" Foreground="DarkGray" Margin="2 0 0 5"  FontSize="14" FontWeight="Medium"  />
+                                <!-- Nội dung -->
+                                <ContentPresenter ContentSource="Content"  />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </GroupBox.Template>
 
-        <lvc:CartesianChart Grid.Row="2" Grid.ColumnSpan="2" Height="350" Margin="0,0,10,10"  Grid.Column="0" Series="{Binding SeriesCollection}" LegendLocation="Left" VerticalAlignment="Center">
-            <lvc:CartesianChart.AxisX>
-                <lvc:Axis Title="Salemans"  Labels="{Binding ColumnLabels}">
-                    <lvc:Axis.Separator>
-                        <lvc:Separator  Step="1"></lvc:Separator>
-                    </lvc:Axis.Separator>
-                </lvc:Axis>
-            </lvc:CartesianChart.AxisX>
-            <lvc:CartesianChart.AxisY>
-                <lvc:Axis Title="Sold app" Labels="{Binding Formatter}"></lvc:Axis>
-            </lvc:CartesianChart.AxisY>
+            <!-- Nội dung bên trong GroupBox -->
+            <lvc:CartesianChart Height="316" Margin="0 5 0 0" Series="{Binding SeriesCollection}" LegendLocation="Left" VerticalAlignment="Center">
+                <lvc:CartesianChart.AxisX>
+                    <lvc:Axis Labels="{Binding ColumnLabels}">
+                        <lvc:Axis.Separator>
+                            <lvc:Separator Step="1"></lvc:Separator>
+                        </lvc:Axis.Separator>
+                    </lvc:Axis>
+                </lvc:CartesianChart.AxisX>
+                <lvc:CartesianChart.AxisY>
+                    <lvc:Axis Title="" Labels="{Binding Formatter}"></lvc:Axis>
+                </lvc:CartesianChart.AxisY>
 
-            <lvc:CartesianChart.SeriesColors>
-                <lvc:ColorsCollection>
-                    <Color>#FFA500</Color>
-                    <Color>#228B22</Color>
-                </lvc:ColorsCollection>
-            </lvc:CartesianChart.SeriesColors>
-        </lvc:CartesianChart>
+                <lvc:CartesianChart.SeriesColors>
+                    <lvc:ColorsCollection>
+                        <Color>#FFA500</Color>
+                        <Color>#228B22</Color>
+                    </lvc:ColorsCollection>
+                </lvc:CartesianChart.SeriesColors>
+            </lvc:CartesianChart>
+        </GroupBox>
+
     </Grid>
 </Window>

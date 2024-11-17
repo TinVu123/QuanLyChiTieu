@@ -1,4 +1,5 @@
-﻿using QuanLyChiTieu.ViewModel;
+﻿using QuanLyChiTieu.Model;
+using QuanLyChiTieu.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +30,15 @@ namespace QuanLyChiTieu.ViewModel
         {
             get { return _incomeViewModel; }
             set { _incomeViewModel = value; }
+
         }
+
+
     }
-}
+    }
+
+
+        
+
+            
+

@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows;
 using LiveCharts;
+using System.Data.SqlClient;
+using System.Data.Entity;
 
 namespace QuanLyChiTieu.ViewModel
 {
@@ -16,6 +18,7 @@ namespace QuanLyChiTieu.ViewModel
         public ICommand LoadedCommand { get; set; }
         public ICommand DetailSpendingCommand { get; set; }
         public ICommand DetailIcomeCommand { get; set; }
+        public ICommand ReloadCommand { get; set; }
 
         private string totalSpending;
         public string TotalSpending
@@ -45,14 +48,29 @@ namespace QuanLyChiTieu.ViewModel
 
         public Func<double, string> Formatter { get; set; }
 
+        public int checkYear = 0;
+
         private DateTime _monthPicker;
-
-        public DateTime MonthPicker { get => _monthPicker; set { _monthPicker = value; OnPropertyChanged(); LoadSpendingAndIncomeAndIncome(); } }
-
-
-        public HomeViewModel()
+        public DateTime MonthPicker
         {
-            LoadedCommand = new RelayCommand<Window>((p) => { return true; }, p =>
+            get => _monthPicker;
+            set
+            {
+                _monthPicker = value;
+                OnPropertyChanged();
+                LoadSpendingAndIncomeAndIncome();
+                if (MonthPicker.Year != checkYear)
+                {
+                    LiveChart();
+                    checkYear = MonthPicker.Year;
+                }
+            }
+        }
+      
+        public  HomeViewModel()
+        {
+
+            LoadedCommand = new RelayCommand<Window>((p) => { return true; }, async p =>
             {
                 if (p == null)
                 {
@@ -71,11 +89,13 @@ namespace QuanLyChiTieu.ViewModel
                 {
                     p.Show();
                     MonthPicker = DateTime.Today;
-                    LoadSpendingAndIncomeAndIncome();
+
+                     LoadSpendingAndIncomeAndIncome();
                 }
                 else
                 {
                     p.Close();
+
                 }
             });
 
@@ -88,10 +108,17 @@ namespace QuanLyChiTieu.ViewModel
 
             DetailIcomeCommand = new RelayCommand<object>((p) => { return true; }, p =>
             {
-                View.IncomeView thu = new View.IncomeView();
+                 var thu = new View.IncomeView();
                 thu.ShowDialog();
             });
-        }
+
+            ReloadCommand = new RelayCommand<object>((p) => { return true; }, p =>
+            { 
+                    MonthPicker = DateTime.Today;
+                    LiveChart();
+            });
+
+            }
 
         public void LiveChart()
         {
@@ -100,12 +127,12 @@ namespace QuanLyChiTieu.ViewModel
                 new ColumnSeries
                 {
                     Title = "Thu",
-                    Values = new ChartValues<double>(GetDataLiveChartIncome()),
+                    Values = new ChartValues<decimal>(GetDataLiveChartIncome()),
                 },
                 new ColumnSeries
                 {
                     Title = "Chi",
-                    Values = new ChartValues<double>(GetDataLiveChartSpending()) 
+                    Values = new ChartValues<decimal>(GetDataLiveChartSpending()) 
                 }
             };
             ColumnLabels = new[] { "T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12" };
@@ -115,37 +142,53 @@ namespace QuanLyChiTieu.ViewModel
         // Tinh tong so tien thu va chi
         public void LoadSpendingAndIncomeAndIncome()
         {
-            using (var db = new QuanLyChiTieuEntities())
+            try
             {
-                var tongChi = from k in db.ChiTieux
-                              where k.ThoiGian.Value.Month == MonthPicker.Month &&
-                                     k.ThoiGian.Value.Year == MonthPicker.Year &&
-                                     k.UserID == UserService.Instance.UserID
-                              group k by k.ThoiGian into g
-                              select g.Sum(p => p.SoTien);
-
-                var tongThu = from k in db.ThuNhaps
-                              where k.ThoiGian.Value.Month == MonthPicker.Month &&
-                                     k.ThoiGian.Value.Year == MonthPicker.Year &&
-                                   UserService.Instance.UserID == k.UserID
-                              group k by k.ThoiGian into g
-                              select g.Sum(p => p.SoTien);
-
-                if (tongThu != null && tongChi != null)
+                using (var db = new QuanLyChiTieuEntities())
                 {
-                    TotalIncome = string.Format("{0:#,###}", tongThu.Sum());
-                    TotalSpending = string.Format("{0:#,###}", tongChi.Sum());
+                    try
+                    {
+                        var tongChi =  db.Database.SqlQuery<decimal?>(
+                            "exec [dbo].[TinhTongTienChi] @month, @year, @userid",
+                            new SqlParameter("@month", MonthPicker.Month),
+                            new SqlParameter("@year", MonthPicker.Year),
+                            new SqlParameter("@userid", UserService.Instance.UserID)
+                        ).SingleOrDefault();
 
+                        TotalSpending = tongChi.HasValue ? string.Format("{0:#,###} VND", tongChi.Value) : "0 VND";
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.ToString());
+                    }
+
+                    try
+                    {
+                        var tongThu =  db.Database.SqlQuery<decimal?>(
+                        "exec [dbo].[TinhTongTienThu] @month, @year, @userid",
+                        new SqlParameter("@month", MonthPicker.Month),
+                        new SqlParameter("@year", MonthPicker.Year),
+                        new SqlParameter("@userid", UserService.Instance.UserID)
+                        ).SingleOrDefault();
+
+
+                        TotalIncome = tongThu.HasValue ? string.Format("{0:#,###} VND", tongThu.Value) : "0 VND";
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.ToString());
+                    }
                 }
-
+            }catch(Exception e)
+            {
+                MessageBox.Show(e.ToString());
             }
-            LiveChart();
         }
 
         // Lấy dữ liệu cho biểu đồ thu
-        public double[] GetDataLiveChartIncome()
+        public decimal[] GetDataLiveChartIncome()
         {
-            Dictionary<int, double> monthDiction = new Dictionary<int, double>
+            Dictionary<int, decimal> monthDiction = new Dictionary<int, decimal>
             {
                 [1] = 0,
                 [2] = 0,
@@ -161,35 +204,37 @@ namespace QuanLyChiTieu.ViewModel
                 [12] = 0,
             };
 
-            using (var db = new QuanLyChiTieuEntities())
+            try
             {
-                var tongTienTheo_monthPicker = db.ThuNhaps
-
-                    .Where(k => k.ThoiGian.Value.Year == _monthPicker.Year && UserService.Instance.UserID == k.UserID)
-                    .GroupBy(k => new { k.ThoiGian.Value.Month })
-                    .Select(g => new
-                    {
-                        month = g.Key.Month,
-                        TongSoTien = g.Sum(p => p.SoTien)
-                    })
-                    .ToList();
-                foreach (var item in tongTienTheo_monthPicker)
+                using (var db = new QuanLyChiTieuEntities())
                 {
-                    monthDiction[item.month] = item.TongSoTien ?? 0;
-                }
+                    var tongTienTheo_monthPicker = db.ThuNhaps
 
-            }
-            var valuesThu = monthDiction.Values.ToArray();
-            return valuesThu;
+                        .Where(k => k.ThoiGian.Value.Year == _monthPicker.Year && UserService.Instance.UserID == k.UserID)
+                        .GroupBy(k => new { k.ThoiGian.Value.Month })
+                        .Select(g => new
+                        {
+                            month = g.Key.Month,
+                            TongSoTien = g.Sum(p => p.SoTien)
+                        })
+                        .ToList();
+                    foreach (var item in tongTienTheo_monthPicker)
+                    {
+                        monthDiction[item.month] = item.TongSoTien;
+                    }
+
+                }
+            }catch (Exception e) { MessageBox.Show(e.ToString()); }
+            
+                var valuesThu = monthDiction.Values.ToArray();
+                return valuesThu;
 
         }
 
         // Lấy dữ liệu cho biểu đồ chi
-        public double[] GetDataLiveChartSpending()
+        public decimal[] GetDataLiveChartSpending()
         {
-            using (var db = new QuanLyChiTieuEntities())
-            {
-                Dictionary<int, double> monthChiDiction = new Dictionary<int, double>
+                Dictionary<int, decimal> monthChiDiction = new Dictionary<int, decimal>
                 {
                     [1] = 0,
                     [2] = 0,
@@ -204,23 +249,30 @@ namespace QuanLyChiTieu.ViewModel
                     [11] = 0,
                     [12] = 0,
                 };
-
-                var tongTienTheo_monthPicker = db.ChiTieux
-                    .Where(k => k.ThoiGian.Value.Year == _monthPicker.Year && UserService.Instance.UserID == k.UserID)
-                    .GroupBy(k => new { k.ThoiGian.Value.Month })
-                    .Select(g => new
-                    {
-                        month = g.Key.Month,
-                        TongSoTien = g.Sum(p => p.SoTien)
-                    })
-                    .ToList();
-                foreach (var item in tongTienTheo_monthPicker)
+            try
+            {
+                 using (var db = new QuanLyChiTieuEntities())
                 {
-                    monthChiDiction[item.month] = item.TongSoTien ?? 0;
+
+                    var tongTienTheo_monthPicker =db.ChiTieux
+                        .Where(k => k.ThoiGian.Value.Year == _monthPicker.Year && UserService.Instance.UserID == k.UserID)
+                        .GroupBy(k => new { k.ThoiGian.Value.Month })
+                        .Select(g => new
+                        {
+                            month = g.Key.Month,
+                            TongSoTien = g.Sum(p => p.SoTien)
+                        })
+                        .ToList();
+                    foreach (var item in tongTienTheo_monthPicker)
+                    {
+                        monthChiDiction[item.month] = item.TongSoTien;
+                    }
                 }
+            }
+            catch (Exception e) { MessageBox.Show(e.ToString()); }
+           
                 var valuesChi = monthChiDiction.Values.ToArray();
                 return valuesChi;
-            }
         }
 
     }
