@@ -52,8 +52,8 @@ namespace QuanLyChiTieu.ViewModel
 
             public FilterIncomeViewModel()
             {
-                StartDate = DateTime.Now;
-                EndDate = DateTime.Now;
+                StartDate = DateTime.Today;
+                EndDate = DateTime.Today;
                 Category();
                 FilterCommand = new RelayCommand<Window>((p) => { return true; }, (p) => { LoadFilter(); });
             }
@@ -79,15 +79,18 @@ namespace QuanLyChiTieu.ViewModel
                                 STT = ++i,
                                 Danhmuc = k.DanhMuc,
                                 Thoigian = k.ThoiGian.Value,
-                                Sotien = (int)k.SoTien,
+                                //Sotien = string.Format("{0:#,###} VND", k.SoTien),
+                                Sotien = (k.SoTien),
+
                                 Chitiet = k.ChiTiet
                             };
                             sum += (int)k.SoTien;
                             IncomeList.Add(ct);
                         }
-                        TotalMoney = sum.ToString();
-                    }
-                    else
+                    TotalMoney = string.Format("{0:#,###} VND", sum);
+
+                }
+                else
                     {
                         var data = from k in db.ThuNhaps
                                    where UserService.Instance.UserID == k.UserID &&
@@ -102,15 +105,16 @@ namespace QuanLyChiTieu.ViewModel
                                 STT = ++i,
                                 Danhmuc = k.DanhMuc,
                                 Thoigian = k.ThoiGian.Value,
-                                Sotien = (int)k.SoTien,
+                                Sotien = k.SoTien,
                                 Chitiet = k.ChiTiet
                             };
                             sum += (int)k.SoTien;
                             IncomeList.Add(ct);
                         }
-                        TotalMoney = string.Format("{0:#,###}", sum);
-                    }
+                        TotalMoney = string.Format("{0:#,###} VND", sum);
+
                 }
+            }
             }
 
         public ObservableCollection<DanhMucThu> _categoriesIncome = new ObservableCollection<DanhMucThu>(); // Khởi tạo

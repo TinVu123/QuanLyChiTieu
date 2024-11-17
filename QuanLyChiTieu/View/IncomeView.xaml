@@ -10,38 +10,40 @@
         Title="IncomeView" Height="640" Width="950"
         WindowStartupLocation="CenterScreen">
 
-    <Window.DataContext>
+   <Window.DataContext>
         <viewmodel:MainViewModel></viewmodel:MainViewModel>
     </Window.DataContext>
 
     <Window.Resources>
-        <Style x:Key="labelStyle">
-            <Setter Property="Label.Margin" Value="5 5 5 2"/>
+        <Style x:Key="labelStyle" >
+            <Setter Property="Label.Margin" Value="0 5 5 2"/>
             <Setter Property="Label.FontSize" Value="24"/>
             <Setter Property="Label.Width" Value="auto"/>
             <Setter Property="Label.Height" Value="auto"/>
             <Setter Property="Label.VerticalAlignment" Value="Center"/>
             <Setter Property="Label.HorizontalAlignment" Value="Left"/>
         </Style>
-        <Style x:Key="textBoxStyle">
-            <Setter Property="Label.Margin" Value="12 0 0 5"/>
+        <Style x:Key="textBoxStyle" >
+            <Setter Property="Label.Margin" Value="5 0 0 5"/>
             <Setter Property="Label.FontSize" Value="22"/>
             <Setter Property="Label.Height" Value="32"/>
             <Setter Property="Label.Width" Value="240"/>
             <Setter Property="Label.VerticalAlignment" Value="Center"/>
             <Setter Property="Label.HorizontalAlignment" Value="Left"/>
         </Style>
-        <Style x:Key="buttonStyle">
-            <Setter Property="Label.Margin" Value="5 5 5 5"/>
+        <Style x:Key="buttonStyle" >
+            <Setter Property="Label.Margin" Value="0 5 5 5"/>
             <Setter Property="Label.FontSize" Value="18"/>
             <Setter Property="Label.Width" Value="50"/>
             <Setter Property="Label.Height" Value="auto"/>
             <Setter Property="Label.VerticalAlignment" Value="Center"/>
             <Setter Property="Label.HorizontalAlignment" Value="Left"/>
         </Style>
+       
+
     </Window.Resources>
 
-    <Grid >
+    <Grid HorizontalAlignment="Center"  VerticalAlignment="Center">
         <Grid.RowDefinitions>
             <RowDefinition Height="64"/>
             <RowDefinition Height="55"/>
@@ -57,7 +59,7 @@
                 <GridView >
                     <GridViewColumn Header="STT" Width="40"  DisplayMemberBinding="{Binding STT}"/>
                     <GridViewColumn Header="Danh mục" Width="150" DisplayMemberBinding="{Binding Danhmuc }"/>
-                    <GridViewColumn Header="Số tiền" Width="150" DisplayMemberBinding="{Binding Sotien, StringFormat={}{0:#.##}}"/>
+                    <GridViewColumn Header="Số tiền" Width="150" DisplayMemberBinding="{Binding Sotien, StringFormat={}{0:N0} VND}"/>
                     <GridViewColumn Header="Thời gian" Width="150"  DisplayMemberBinding="{Binding Thoigian, StringFormat=dd-MM-yyyy}"/>
                     <GridViewColumn Header="Ghi chú" Width="150"  DisplayMemberBinding="{Binding Chitiet}"/>
                 </GridView>
@@ -78,7 +80,7 @@
             </i:Interaction.Triggers>
         </Button>
 
-        <DatePicker Width="auto" SelectedDate="{Binding IncomeViewModel.MonthPicker}" Grid.ColumnSpan="2" HorizontalAlignment="Center" BorderBrush="Gray" FontSize="30" 
+        <DatePicker Width="auto"   SelectedDate="{Binding IncomeViewModel.MonthPicker}" Grid.ColumnSpan="2" HorizontalAlignment="Center" BorderBrush="Gray" FontSize="30" 
             viewmodel:DatePickerCalendar.IsMonthYear="True"
             viewmodel:DatePickerDateFormat.DateFormat="MMMM-yyyy"
             Text="MMM-yyyy" Margin="0,10,0,10" />
@@ -94,21 +96,25 @@
             <TextBlock Text="{Binding IncomeViewModel.TotalMoney}" Height="auto" FontSize="23" VerticalAlignment="Bottom" Margin="0 0 0 7"></TextBlock>
         </StackPanel>
 
-        <StackPanel  Grid.Row="2" Margin="5,0,10,0" Width="auto"  Height="auto" Grid.Column="1">
-            <Label Content="Danh mục:" Style="{StaticResource labelStyle}"/>
-            <ComboBox  ItemsSource="{Binding IncomeViewModel.CategorysIncome}"  FontSize="20" SelectedItem="{Binding Path= IncomeViewModel.SCategoryIncomeItem}"   DisplayMemberPath="TenMucThu"  Text="{Binding IncomeViewModel.Category1}" Style="{StaticResource textBoxStyle}" />
-            <Label Content="Số tiền:" Style="{StaticResource labelStyle}"/>
-            <TextBox x:Name="txbSoTien" Text="{Binding IncomeViewModel.Money}" Style="{StaticResource textBoxStyle}"/>
-            <Label Content="Thời gian:" Style="{StaticResource labelStyle}"/>
-            <DatePicker   SelectedDate="{Binding IncomeViewModel.Time}" Style="{StaticResource textBoxStyle}"/>
-            <Label Content="Ghi chú:" Style="{StaticResource labelStyle}"/>
-            <TextBox TextWrapping="Wrap" Text="{Binding IncomeViewModel.Note}"  Style="{StaticResource textBoxStyle}" Height="100"/>
+        <GroupBox Grid.Row="2" Grid.Column="1" Header="Chi tiết "  Width="auto"  Height="auto" FontSize="18" Margin="5,0,0,0" >
+            <StackPanel  Width="auto"  Height="auto" >
+                <Label Content="Danh mục:" Style="{StaticResource labelStyle}"/>
+                <ComboBox  ItemsSource="{Binding IncomeViewModel.CategorysIncome,  Mode=TwoWay}"  FontSize="20"  DisplayMemberPath="TenMucThu"  Text="{Binding IncomeViewModel.Category, Mode=TwoWay}" Style="{StaticResource textBoxStyle}" />
+                <Label Content="Số tiền:" Style="{StaticResource labelStyle}" />
+                <TextBox x:Name="txbSoTien" Text="{Binding IncomeViewModel.Money,  Mode=TwoWay }"  Style="{StaticResource textBoxStyle}"/>
+                <Label Content="Thời gian:" Style="{StaticResource labelStyle}"/>
+                <DatePicker   SelectedDate="{Binding IncomeViewModel.Time,  Mode=TwoWay}" Style="{StaticResource textBoxStyle}"/>
+                <Label Content="Ghi chú:" Style="{StaticResource labelStyle}"/>
+                <TextBox TextWrapping="Wrap" Text="{Binding IncomeViewModel.Note,  Mode=TwoWay}"  Style="{StaticResource textBoxStyle}" Height="100"/>
 
-            <StackPanel Orientation="Horizontal" Margin="8 0 0 0 " VerticalAlignment="Bottom" >
-                <Button Content="Thêm" Style="{StaticResource buttonStyle}"></Button>
-                <Button Content="Xoá" Style="{StaticResource buttonStyle}"/>
-                <Button Content="Sửa" Style="{StaticResource buttonStyle}"/>
+                <StackPanel Orientation="Horizontal" Margin="8 0 0 0 " VerticalAlignment="Bottom" >
+                    <Button Content="Thêm"  Command="{Binding IncomeViewModel.AddCommand}" Style="{StaticResource buttonStyle}"></Button>
+                    <Button Content="Xoá"   Command="{Binding IncomeViewModel.DeleteCommand}" Style="{StaticResource buttonStyle}"/>
+                    <Button Content="Sửa"   Command="{Binding IncomeViewModel.UpdateCommand}" Style="{StaticResource buttonStyle}"/>
+                    <Button Content="Load"  Command="{Binding IncomeViewModel.RefreshCommand}" Style="{StaticResource buttonStyle}"/>
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
+        </GroupBox>
+
     </Grid>
 </Window>

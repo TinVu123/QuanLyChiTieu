@@ -35,41 +35,46 @@ namespace QuanLyChiTieu.ViewModel
 
         public void Login(Window p)
         {
-            using (var db = new QuanLyChiTieuEntities())
+            try
             {
-                if (string.IsNullOrEmpty(Email))
+                using (var db = new QuanLyChiTieuEntities())
                 {
-                    MessageBox.Show("Vui lòng nhập Email.");
-                    return;
-                }
-                else if (!Regex.IsMatch(Email, @"^[a-zA-Z][\w\.-]*[a-zA-Z0-9]@[a-zA-Z0-9][\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]$"))
-                {
+                    if (string.IsNullOrEmpty(Email))
+                    {
+                        MessageBox.Show("Vui lòng nhập Email.");
+                        return;
+                    }
+                    else if (!Regex.IsMatch(Email, @"^[a-zA-Z][\w\.-]*[a-zA-Z0-9]@[a-zA-Z0-9][\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]$"))
+                    {
 
-                    MessageBox.Show("Vui lòng nhập email hợp lệ.");
-                    return;
-                }
-                if (string.IsNullOrEmpty(Password))
-                {
-                    MessageBox.Show("Vui lòng nhập Password.");
-                    return;
-                }
-                var count = db.Users.Where(x => x.EmailorPhone == Email && x.Password == Password).Count();
+                        MessageBox.Show("Vui lòng nhập email hợp lệ.");
+                        return;
+                    }
+                    if (string.IsNullOrEmpty(Password))
+                    {
+                        MessageBox.Show("Vui lòng nhập Password.");
+                        return;
+                    }
+                    var count = db.Users.Where(x => x.EmailorPhone == Email && x.Password == Password).Count();
 
-                if (count > 0)
-                {
-                    IsLogin = true;
-                    UserService.Instance.UserID = (from k in db.Users
-                                                   where k.EmailorPhone == Email && k.Password == Password
-                                                   select k.ID).FirstOrDefault();
-                    p.Hide();
+                    if (count > 0)
+                    {
+                        IsLogin = true;
+                        UserService.Instance.UserID = (from k in db.Users
+                                                       where k.EmailorPhone == Email && k.Password == Password
+                                                       select k.ID).FirstOrDefault();
+                        p.Hide();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Sai thông tin");
+                    }
                 }
-                else
-                {
-                    MessageBox.Show("Sai thông tin");
-                }
+                }catch (Exception ex) {  MessageBox.Show(ex.Message); }
+           
             }
 
         }
     }
 
-}
+
