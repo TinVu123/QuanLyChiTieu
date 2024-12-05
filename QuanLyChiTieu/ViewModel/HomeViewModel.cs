@@ -19,6 +19,7 @@ namespace QuanLyChiTieu.ViewModel
         public ICommand DetailSpendingCommand { get; set; }
         public ICommand DetailIcomeCommand { get; set; }
         public ICommand ReloadCommand { get; set; }
+        public ICommand LogoutCommand { get; set; }
 
         private string totalSpending;
         public string TotalSpending
@@ -70,7 +71,7 @@ namespace QuanLyChiTieu.ViewModel
         public  HomeViewModel()
         {
 
-            LoadedCommand = new RelayCommand<Window>((p) => { return true; }, async p =>
+            LoadedCommand = new RelayCommand<Window>((p) => { return true; }, p =>
             {
                 if (p == null)
                 {
@@ -118,7 +119,8 @@ namespace QuanLyChiTieu.ViewModel
                     LiveChart();
             });
 
-            }
+           
+        }
 
         public void LiveChart()
         {

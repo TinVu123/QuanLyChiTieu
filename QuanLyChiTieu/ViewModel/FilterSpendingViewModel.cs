@@ -67,7 +67,7 @@ namespace QuanLyChiTieu.ViewModel
                                      && k.DanhMuc == SCategorySpending.TenMucChi
                                select k;
 
-                    int i = 0, sum = 0;
+                    int i = 0; long sum = 0;
                     foreach (var k in data.ToList())
                     {
                         // Tạo một đối tượng DisplayListView và thêm vào danh sách
@@ -80,7 +80,7 @@ namespace QuanLyChiTieu.ViewModel
                             Chitiet = k.ChiTiet
                         };
 
-                        sum += (int)k.SoTien; // Cộng dồn số tiền
+                        sum += (long)k.SoTien; // Cộng dồn số tiền
                         SpendingList.Add(ct);
                     }
 
@@ -94,7 +94,7 @@ namespace QuanLyChiTieu.ViewModel
                                      && k.ThoiGian <= EndDate
                                select k;
 
-                    int i = 0, sum = 0;
+                    int i = 0; long sum = 0;
                     foreach (var k in data.ToList())
                     {
                         // Tạo một đối tượng DisplayListView và thêm vào danh sách
@@ -107,7 +107,7 @@ namespace QuanLyChiTieu.ViewModel
                             Chitiet = k.ChiTiet
                         };
 
-                        sum += (int)k.SoTien; // Cộng dồn số tiền
+                        sum += (long)k.SoTien; // Cộng dồn số tiền
                         SpendingList.Add(ct);
                     }
 
