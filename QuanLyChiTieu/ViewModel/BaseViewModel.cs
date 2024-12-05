@@ -9,7 +9,7 @@ using System.Windows.Input;
 
 namespace QuanLyChiTieu.ViewModel
 {
-    public class BaseViewModel : INotifyPropertyChanged // thông báo khi có sự kiện thay đổi
+    public class BaseViewModel : INotifyPropertyChanged // thông báo khi có sự kiện thay đổi, cập nhập lại view khi viewmode thay đổi
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -25,7 +25,7 @@ namespace QuanLyChiTieu.ViewModel
 
     public class RelayCommand<T> : ICommand
     {
-        private readonly Predicate<T> _canExecute; // deleget nhận vào tham số kiểu T và trả về kiểu bool
+        private readonly Predicate<T> _canExecute; //kiểm tra xem command được gọi chưa, deleget nhận vào tham số kiểu T và trả về kiểu bool //  
         private readonly Action<T> _execute;  // delegate dùng để gán sự kiện vào kiểu T và không trả về gì
 
         public RelayCommand(Predicate<T> canExecute, Action<T> execute)

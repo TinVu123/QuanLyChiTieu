@@ -44,19 +44,16 @@ namespace QuanLyChiTieu.ViewModel
                         MessageBox.Show("Vui lòng nhập Email.");
                         return;
                     }
-                    else if (!Regex.IsMatch(Email, @"^[a-zA-Z][\w\.-]*[a-zA-Z0-9]@[a-zA-Z0-9][\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]$"))
+                    else if (!Regex.IsMatch(Email, 
+                        @"^[a-zA-Z][\w\.-]*[a-zA-Z0-9]@[a-zA-Z0-9][\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]$"))
                     {
-
-                        MessageBox.Show("Vui lòng nhập email hợp lệ.");
-                        return;
+                        MessageBox.Show("Vui lòng nhập email hợp lệ."); return;
                     }
                     if (string.IsNullOrEmpty(Password))
                     {
-                        MessageBox.Show("Vui lòng nhập Password.");
-                        return;
+                        MessageBox.Show("Vui lòng nhập Password."); return;
                     }
                     var count = db.Users.Where(x => x.EmailorPhone == Email && x.Password == Password).Count();
-
                     if (count > 0)
                     {
                         IsLogin = true;
